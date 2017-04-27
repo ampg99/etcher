@@ -157,6 +157,9 @@ PRODUCT_NAME = etcher
 APPLICATION_NAME_LOWERCASE = $(shell echo $(APPLICATION_NAME) | tr A-Z a-z)
 APPLICATION_VERSION_DEBIAN = $(shell echo $(APPLICATION_VERSION) | tr "-" "~")
 
+# Fix hard link Appveyor issues
+CPRF = cp -RLf
+
 # ---------------------------------------------------------------------
 # Rules
 # ---------------------------------------------------------------------
@@ -207,7 +210,7 @@ $(BUILD_DIRECTORY)/electron-$(TARGET_PLATFORM)-$(APPLICATION_VERSION)-$(TARGET_A
 	./scripts/build/electron-create-resources-app.sh -s . -o $@ \
 		-v $(APPLICATION_VERSION) \
 		-f "$(APPLICATION_FILES)"
-	cp -RLf $< $@
+	$(CPRF) $< $@
 
 ifdef ANALYTICS_SENTRY_TOKEN
 	./scripts/build/jq-insert.sh \
@@ -243,7 +246,7 @@ $(BUILD_DIRECTORY)/$(APPLICATION_NAME)-cli-$(TARGET_PLATFORM)-$(APPLICATION_VERS
 	$(BUILD_DIRECTORY)/node-$(TARGET_PLATFORM)-$(TARGET_ARCH)-dependencies/node_modules \
 	| $(BUILD_DIRECTORY)
 	mkdir $@
-	$(foreach prerequisite,$^,$(call execute-command,cp -rf $(prerequisite) $@))
+	$(foreach prerequisite,$^,$(call execute-command,$(CPRF) $(prerequisite) $@))
 
 $(BUILD_DIRECTORY)/$(APPLICATION_NAME)-cli-$(TARGET_PLATFORM)-$(APPLICATION_VERSION)-$(TARGET_ARCH).js: \
 	$(BUILD_DIRECTORY)/$(APPLICATION_NAME)-cli-$(TARGET_PLATFORM)-$(APPLICATION_VERSION)-$(TARGET_ARCH)-app \
@@ -430,6 +433,7 @@ TARGETS = \
 	package-electron \
 	package-cli \
 	cli-develop \
+	installers-all \
 	electron-develop
 
 package-electron: $(BUILD_DIRECTORY)/$(APPLICATION_NAME)-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH)
@@ -447,6 +451,7 @@ PUBLISH_AWS_S3 += \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).zip \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).dmg \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-cli-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).tar.gz
+installers-all: $(PUBLISH_AWS_S3)
 endif
 
 ifeq ($(TARGET_PLATFORM),linux)
@@ -462,6 +467,7 @@ PUBLISH_AWS_S3 += \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-cli-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).tar.gz
 PUBLISH_BINTRAY_DEBIAN += \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME_LOWERCASE)-electron_$(APPLICATION_VERSION_DEBIAN)_$(TARGET_ARCH_DEBIAN).deb
+installers-all: $(PUBLISH_AWS_S3) $(PUBLISH_BINTRAY_DEBIAN)
 endif
 
 ifeq ($(TARGET_PLATFORM),win32)
@@ -476,6 +482,7 @@ PUBLISH_AWS_S3 += \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).zip \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-$(APPLICATION_VERSION)-win32-$(TARGET_ARCH).exe \
 	$(BUILD_OUTPUT_DIRECTORY)/$(APPLICATION_NAME)-cli-$(APPLICATION_VERSION)-$(TARGET_PLATFORM)-$(TARGET_ARCH).zip
+installers-all: $(PUBLISH_AWS_S3)
 endif
 
 ifdef PUBLISH_AWS_S3
