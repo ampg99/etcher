@@ -33,7 +33,7 @@ describe('ImageStream: Directory', function() {
         imageStream.getFromFilePath(IMAGES_PATH).catch((error) => {
           m.chai.expect(error).to.be.an.instanceof(Error);
           m.chai.expect(errors.getTitle(error)).to.equal('Invalid image');
-          m.chai.expect(errors.getDescription(error)).to.equal('The image must be a file');
+          m.chai.expect(errors.getDescription(error)).to.contain('The image must be a file');
           m.chai.expect(errors.isUserError(error)).to.be.true;
           done();
         });
@@ -49,7 +49,7 @@ describe('ImageStream: Directory', function() {
       imageStream.getImageMetadata(IMAGES_PATH).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(errors.getTitle(error)).to.equal('Invalid image');
-        m.chai.expect(errors.getDescription(error)).to.equal('The image must be a file');
+        m.chai.expect(errors.getDescription(error)).to.contain('The image must be a file');
         m.chai.expect(errors.isUserError(error)).to.be.true;
         done();
       });

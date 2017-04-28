@@ -42,17 +42,16 @@ describe('ImageStream: Metadata ZIP', function() {
 
     tester.expectError(
       path.join(ZIP_PATH, 'rpi-invalid-manifest.zip'),
-      'Invalid archive manifest.json');
+      'Invalid image', 'The archive manifest.json file is not valid JSON');
 
     describe('.getImageMetadata()', function() {
 
-      it('should be rejected with an error', function(done) {
+      it('should be rejected with an error', function() {
         const image = path.join(ZIP_PATH, 'rpi-invalid-manifest.zip');
 
-        imageStream.getImageMetadata(image).catch((error) => {
+        return imageStream.getImageMetadata(image).catch((error) => {
           m.chai.expect(error).to.be.an.instanceof(Error);
-          m.chai.expect(error.message).to.equal('Invalid archive manifest.json');
-          done();
+          m.chai.expect(error.description).to.contain('The archive manifest.json file is not valid JSON');
         });
       });
 

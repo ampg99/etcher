@@ -34,19 +34,19 @@ describe('ImageStream: ZIP', function() {
     describe('given an empty zip directory', function() {
       tester.expectError(
         path.join(ZIP_PATH, 'zip-directory-empty.zip'),
-        'Invalid archive image');
+        'Invalid image', 'The archive image should contain one and only one top image file');
     });
 
     describe('given a zip directory containing only misc files', function() {
       tester.expectError(
         path.join(ZIP_PATH, 'zip-directory-no-image-only-misc.zip'),
-        'Invalid archive image');
+        'Invalid image', 'The archive image should contain one and only one top image file');
     });
 
     describe('given a zip directory containing multiple images', function() {
       tester.expectError(
         path.join(ZIP_PATH, 'zip-directory-multiple-images.zip'),
-        'Invalid archive image');
+        'Invalid image', 'The archive image should contain one and only one top image file');
     });
 
     describe('given a zip directory containing only an image', function() {
